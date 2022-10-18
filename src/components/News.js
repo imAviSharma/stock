@@ -11,9 +11,9 @@ const options = {
   headers: {
     "content-type": "application/x-www-form-urlencoded",
     "X-RapidAPI-Key": "93b1ea500emsh115852ee72fa0acp1ffbc7jsnd9edb5fdaee2",
-    "X-RapidAPI-Host": "yahoo-finance97.p.rapidapi.com",
+    "X-RapidAPI-Host": "yahoo-finance97.p.rapidapi.com"
   },
-  data: encodedParams,
+  data: encodedParams
 };
 
 function News() {
@@ -24,15 +24,24 @@ function News() {
     axios
       .request(options)
       .then(function (response) {
-        setData(response.data.data);
+        if (response.status !== 200) {
+          throw new Error(`This is an HTTP error: The status is ${response.status}`);
+        }
+        return response.data;
+      })
+      .then(function (actualData) {
+        setData(actualData.data);
+        setError(null);
       })
       .catch(function (error) {
         setError(error);
+        setData(null);
       })
       .finally(function () {
         setLoading(false);
       });
   }, []);
+  
   return (
     <>
       <Helmet>
@@ -45,32 +54,21 @@ function News() {
       ) : (
         <>
           {error && <div>{`Error :: ${error}`}</div>}
-          {data.map((news, id) => {
-            return (
-              <div key={id} className="flex justify-center m-4">
-                <div className="flex flex-col md:flex-row md:max-w-xl rounded-lg bg-white shadow-lg">
-                  <img
-                    className=" w-full h-96 md:h-auto object-cover md:w-48 rounded-t-lg md:rounded-none md:rounded-l-lg"
-                    src={news.thumbnail.resolutions[1].url}
-                    alt={news.title}
-                  />
-                  <div className="p-6 flex flex-col justify-start">
-                    <h5 className="text-gray-900 text-xl font-medium mb-2">
-                      {news.title}
-                    </h5>
-                    <p className="text-gray-700 text-base mb-4">
-                      This is a wider card with supporting text below as a
-                      natural lead-in to additional content. This content is a
-                      little bit longer.
-                    </p>
-                    <p className="text-gray-600 text-xs">
-                      Last updated 3 mins ago
-                    </p>
+          {data &&
+            data.map((news, id) => {
+              return (
+                <div key={id} className="flex justify-center m-4">
+                  <div className="flex flex-col md:flex-row md:max-w-xl rounded-lg bg-white shadow-lg">
+                    <img className=" w-full h-96 md:h-auto object-cover md:w-48 rounded-t-lg md:rounded-none md:rounded-l-lg" src={news.thumbnail.resolutions[1].url} alt={news.title} />
+                    <div className="p-6 flex flex-col justify-start">
+                      <h5 className="text-gray-900 text-xl font-medium mb-2">{news.title}</h5>
+                      <p className="text-gray-700 text-base mb-4">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                      <p className="text-gray-600 text-xs">Last updated 3 mins ago</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </>
       )}
     </>
