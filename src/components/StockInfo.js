@@ -5,7 +5,7 @@ const encodedParams = new URLSearchParams();
 encodedParams.append("symbol", "AAPL");
 
 const options = {
-  method: "POST",
+  method: "POST", 
   url: "https://yahoo-finance97.p.rapidapi.com/stock-info",
   headers: {
     "content-type": "application/x-www-form-urlencoded",
