@@ -22,7 +22,7 @@ function Home() {
             Submit
           </button>
         </div>
-        <LineGraph />
+        {/* <LineGraph /> */}
       </div>
     </>
   );

@@ -1,47 +1,9 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState } from "react";
 import { Helmet } from "react-helmet";
-
-const encodedParams = new URLSearchParams();
-encodedParams.append("symbol", "AAPL");
-
-const options = {
-  method: "POST",
-  url: "https://yahoo-finance97.p.rapidapi.com/news",
-  headers: {
-    "content-type": "application/x-www-form-urlencoded",
-    "X-RapidAPI-Key": "93b1ea500emsh115852ee72fa0acp1ffbc7jsnd9edb5fdaee2",
-    "X-RapidAPI-Host": "yahoo-finance97.p.rapidapi.com"
-  },
-  data: encodedParams
-};
+import useFetch from "../Hooks/useFetch";
 
 function News() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  useEffect(() => {
-    axios
-      .request(options)
-      .then(function (response) {
-        if (response.status !== 200) {
-          throw new Error(`This is an HTTP error: The status is ${response.status}`);
-        }
-        return response.data;
-      })
-      .then(function (actualData) {
-        setData(actualData.data);
-        setError(null);
-      })
-      .catch(function (error) {
-        setError(error);
-        setData(null);
-      })
-      .finally(function () {
-        setLoading(false);
-      });
-  }, []);
-  
+  const { loading, data ,error}  = useFetch("https://yahoo-finance97.p.rapidapi.com/news","AAPL");
   return (
     <>
       <Helmet>
