@@ -37,7 +37,7 @@ function LineGraph({ symbol }) {
       },
     },
   };
-  
+
   const [series, setSeries] = useState([
     {
       data: [],
@@ -51,26 +51,19 @@ function LineGraph({ symbol }) {
     async function getLatestPrice() {
       try {
         const stonksUrl = `https://yahoo-finance-api.vercel.app/${symbol}`;
-        console.log(stonksUrl);
         const data = await getStonks(stonksUrl);
-        console.log(data);
         const gme = data.chart.result[0];
         setPrevPrice(price);
         setPrice(gme.meta.regularMarketPrice.toFixed(2));
         const quote = gme.indicators.quote[0];
         const prices = gme.timestamp.map((timestamp, index) => ({
           x: new Date(timestamp * 1000),
-          y: [
-            quote.open[index],
-            quote.high[index],
-            quote.low[index],
-            quote.close[index],
-          ].map(round),
+          y: [quote.open[index], quote.high[index], quote.low[index], quote.close[index]].map(round)
         }));
         setSeries([
           {
-            data: prices,
-          },
+            data: prices
+          }
         ]);
       } catch (error) {
         console.log(error);
@@ -83,6 +76,7 @@ function LineGraph({ symbol }) {
     return () => {
       clearTimeout(timeoutId);
     };
+    // eslint-disable-next-line
   }, []);
 
   const direction = useMemo(() => (prevPrice < price ? "up" : prevPrice > price ? "down" : ""),
