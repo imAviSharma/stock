@@ -1,6 +1,8 @@
 import NavBar from "./components/NavBar";
 import News from "./components/News";
 import StockInfo from "./components/StockInfo";
+import LineGraph from "./components/LineGraph";
+
 import Home from "./Pages/Home"
 import {
   BrowserRouter as Router,
@@ -22,6 +24,9 @@ function App() {
           </Route>
           <Route path="/stock">
             <StockInfo />
+          </Route>
+          <Route path="/chart">
+            <LineGraph />
           </Route>
         </Switch>
       </div>

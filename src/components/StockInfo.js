@@ -12,15 +12,15 @@ function StockInfo({ symbol }) {
       {loading ? (
         "loading..."
       ) : (
-        <>
-          <h1>{data.longName}</h1>
+        <div className="">
+          <h1 className="capitalize">{data.longName}</h1>
           <p>{data.currentPrice} {data.currency}</p>
           <p>{ Math.round(((data.currentPrice-data.open) + Number.EPSILON) * 100) / 100 } {data.currency} Today</p>
           <a href={data.website}>
             <img src={data.logo_url} alt={data.longName} />
           </a>
-          <p>{data.longBusinessSummary}</p>
-        </>
+          <p className="text-justify">{data.longBusinessSummary}</p>
+        </div>
       )}
     </>
   );

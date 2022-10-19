@@ -2,30 +2,9 @@ import { useEffect, useState, useMemo } from "react";
 import Chart from "react-apexcharts";
 
 const directionEmojis = {
-  up: '🚀',
-  down: '💩',
-  '': '',
-};
-
-const chart = {
-  options: {
-    chart: {
-      type: "candlestick",
-      height: 450,
-    },
-    title: {
-      text: "CandleStick Chart",
-      align: "left",
-    },
-    xaxis: {
-      type: "datetime",
-    },
-    yaxis: {
-      tooltip: {
-        enabled: true,
-      },
-    },
-  },
+  up: "🚀",
+  down: "💩",
+  "": "",
 };
 
 const round = (number) => {
@@ -38,11 +17,33 @@ async function getStonks(stonksUrl) {
 }
 
 function LineGraph({ symbol }) {
+  const chart = {
+    options: {
+      chart: {
+        type: "candlestick",
+        height: 450,
+      },
+      title: {
+        text: `${symbol} Chart`,
+        align: "left",
+      },
+      xaxis: {
+        type: "datetime",
+      },
+      yaxis: {
+        tooltip: {
+          enabled: true,
+        },
+      },
+    },
+  };
+  
   const [series, setSeries] = useState([
     {
       data: [],
     },
   ]);
+  const [prevPrice, setPrevPrice] = useState(-1);
   const [price, setPrice] = useState(-1);
 
   useEffect(() => {
@@ -50,9 +51,11 @@ function LineGraph({ symbol }) {
     async function getLatestPrice() {
       try {
         const stonksUrl = `https://yahoo-finance-api.vercel.app/${symbol}`;
+        console.log(stonksUrl);
         const data = await getStonks(stonksUrl);
         console.log(data);
         const gme = data.chart.result[0];
+        setPrevPrice(price);
         setPrice(gme.meta.regularMarketPrice.toFixed(2));
         const quote = gme.indicators.quote[0];
         const prices = gme.timestamp.map((timestamp, index) => ({
@@ -82,16 +85,23 @@ function LineGraph({ symbol }) {
     };
   }, []);
 
-  const direction = useMemo(() => prevPrice < price ? 'up' : prevPrice > price ? 'down' : '', [prevPrice, price]);
+  const direction = useMemo(() => (prevPrice < price ? "up" : prevPrice > price ? "down" : ""),
+    [prevPrice, price]
+  );
 
   return (
-    <Chart
-      options={chart.options}
-      series={series}
-      type="candlestick"
-      width="100%"
-      height={450}
-    />
+    <>
+      <div className={["price", direction].join(" ")}>
+        ${price} {directionEmojis[direction]}
+      </div>
+      <Chart
+        options={chart.options}
+        series={series}
+        type="candlestick"
+        width="100%"
+        height={450}
+      />
+    </>
   );
 }
 
