@@ -1,94 +1,97 @@
-import React, { useEffect, useState } from "react";
-import { Line } from "react-chartjs-2";
+import { useEffect, useState, useMemo } from "react";
+import Chart from "react-apexcharts";
 
-const options = {
-  legend: {
-    display: false
-  },
-  hover: {
-    intersect: false
-  },
-  elements: {
-    line: {
-      tension: 0
-    },
-    point: {
-      radius: 0
-    }
-  },
-  maintainAspectRatio: false,
-  tooltips: {
-    mode: "index",
-    intersect: false,
-    callbacks: {}
-  },
-  scales: {
-    xAxes: [
-      {
-        type: "time",
-        time: {
-          format: "MM/DD/YY",
-          tooltipFormat: "ll"
-        },
-        ticks: {
-          display: false
-        }
-      }
-    ],
-    yAxes: [
-      {
-        gridLines: {
-          display: false
-        },
-        ticks: {
-          display: false
-        }
-      }
-    ]
-  }
+const directionEmojis = {
+  up: '🚀',
+  down: '💩',
+  '': '',
 };
 
-function LineGraph({ casesType }) {
-  const [data, setData] = useState({});
+const chart = {
+  options: {
+    chart: {
+      type: "candlestick",
+      height: 450,
+    },
+    title: {
+      text: "CandleStick Chart",
+      align: "left",
+    },
+    xaxis: {
+      type: "datetime",
+    },
+    yaxis: {
+      tooltip: {
+        enabled: true,
+      },
+    },
+  },
+};
+
+const round = (number) => {
+  return number ? +number.toFixed(2) : null;
+};
+
+async function getStonks(stonksUrl) {
+  const response = await fetch(stonksUrl);
+  return response.json();
+}
+
+function LineGraph({ symbol }) {
+  const [series, setSeries] = useState([
+    {
+      data: [],
+    },
+  ]);
+  const [price, setPrice] = useState(-1);
 
   useEffect(() => {
-    let data = [];
-    let value = 50;
-    for (var i = 0; i < 366; i++) {
-      let date = new Date();
-      date.setHours(0, 0, 0, 0);
-      date.setDate(i);
-      value += Math.round((Math.random() < 0.5 ? 1 : 0) * Math.random() * 10);
-      data.push({ x: date, y: value });
+    let timeoutId;
+    async function getLatestPrice() {
+      try {
+        const stonksUrl = `https://yahoo-finance-api.vercel.app/${symbol}`;
+        const data = await getStonks(stonksUrl);
+        console.log(data);
+        const gme = data.chart.result[0];
+        setPrice(gme.meta.regularMarketPrice.toFixed(2));
+        const quote = gme.indicators.quote[0];
+        const prices = gme.timestamp.map((timestamp, index) => ({
+          x: new Date(timestamp * 1000),
+          y: [
+            quote.open[index],
+            quote.high[index],
+            quote.low[index],
+            quote.close[index],
+          ].map(round),
+        }));
+        setSeries([
+          {
+            data: prices,
+          },
+        ]);
+      } catch (error) {
+        console.log(error);
+      }
+      timeoutId = setTimeout(getLatestPrice, 5000 * 2);
     }
-    setData(data);
+
+    getLatestPrice();
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, []);
 
+  const direction = useMemo(() => prevPrice < price ? 'up' : prevPrice > price ? 'down' : '', [prevPrice, price]);
+
   return (
-    <div>
-      {data?.length > 0 && (
-        <Line
-          data={{
-            datasets: [
-              {
-                type: "line",
-                backgroundColor: "black",
-                borderColor: "#5AC53B",
-                borderWidth: 2,
-                pointBorderColor: "rgba(0, 0, 0, 0)",
-                pointBackgroundColor: "rgba(0, 0, 0, 0)",
-                pointHoverBackgroundColor: "#5AC53B",
-                pointHoverBorderColor: "#000000",
-                pointHoverBorderWidth: 4,
-                pointHoverRadius: 6,
-                data: data
-              }
-            ]
-          }}
-          options={options}
-        />
-      )}
-    </div>
+    <Chart
+      options={chart.options}
+      series={series}
+      type="candlestick"
+      width="100%"
+      height={450}
+    />
   );
 }
 
