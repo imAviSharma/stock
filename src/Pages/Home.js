@@ -19,7 +19,7 @@ function Home() {
         <title>Home - Stock</title>
         <link rel="canonical" href="http://mysite.com/example" />
       </Helmet>
-      <div className="flex justify-center ml-40 mr-40">
+      <div className="flex justify-center ml-72 mr-72">
         <div>
           <datalist id="suggestions">
             {symbolList.map((symbol, id) => {
@@ -36,6 +36,8 @@ function Home() {
           </div>
           <StockInfo symbol={symbol} />
           <LineGraph symbol={symbol} />
+          <h1 className="text-5xl font-bold text-center">News</h1>
+          <div className="border-4 border-b-gray-500 mb-8"></div>
           <News symbol={symbol} />
         </div>
       </div>

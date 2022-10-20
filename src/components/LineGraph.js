@@ -17,6 +17,7 @@ async function getStonks(stonksUrl) {
 }
 
 function LineGraph({ symbol }) {
+  const symbolCheck = symbol === undefined ? "AAPL" : symbol
   const chart = {
     options: {
       chart: {
@@ -50,7 +51,7 @@ function LineGraph({ symbol }) {
     let timeoutId;
     async function getLatestPrice() {
       try {
-        const stonksUrl = `https://yahoo-finance-api.vercel.app/${symbol}`;
+        const stonksUrl = `https://yahoo-finance-api.vercel.app/${symbolCheck}`;
         const data = await getStonks(stonksUrl);
         const gme = data.chart.result[0];
         setPrevPrice(price);
